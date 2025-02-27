@@ -1,5 +1,3 @@
-# backend1/api/views.py
-import json
 import requests
 from django.conf import settings
 from rest_framework.views import APIView
@@ -32,7 +30,7 @@ class Backend2ProxyView(APIView):
             # Forward the request to backend2 with proper API key
             response = requests.get(
                 backend2_url,
-                headers={settings.API_KEY_HEADER: 'backend2-secret-key'},
+                headers={'X-API-KEY': 'backend2-secret-key'},
                 timeout=5
             )
             
