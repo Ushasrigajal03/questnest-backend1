@@ -3,6 +3,7 @@ from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from utils.pdns import PowerDNSClient
 
 class HealthCheckView(APIView):
     def get(self, request):
@@ -69,6 +70,52 @@ class TenantCreationView(APIView):
             # 1. Call PowerDNS API to create the DNS entry
             # 2. Update Traefik configuration if needed
             # 3. Store the mapping in your database
+            
+            return Response({
+                "service": "backend1",
+                "tenant": {
+                    "username": username,
+                    "subdomain": f"{subdomain}.questnest.in",
+                    "created": True
+                }
+            })
+        except Exception as e:
+            return Response({
+                "service": "backend1",
+                "error": str(e),
+                "status": "failed"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class TenantCreationView(APIView):
+    """View for handling tenant creation"""
+    def post(self, request):
+        try:
+            data = request.data
+            username = data.get('username')
+            
+            if not username:
+                return Response({"error": "Username is required"}, status=status.HTTP_400_BAD_REQUEST)
+                
+            # Generate a subdomain for this tenant
+            import random
+            import string
+            
+            # Generate a random 6-8 character alphanumeric ID
+            length = random.randint(6, 8)
+            subdomain = ''.join(random.choices(string.ascii_lowercase + string.digits, k=length))
+            
+            # Create the DNS entry
+            pdns_client = PowerDNSClient()
+            dns_created = pdns_client.create_subdomain(subdomain)
+            
+            if not dns_created:
+                return Response({
+                    "error": "Failed to create DNS entry",
+                    "status": "failed"
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+            # Save the tenant details in your database
+            # tenant = Tenant.objects.create(username=username, subdomain=subdomain)
             
             return Response({
                 "service": "backend1",

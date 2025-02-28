@@ -135,10 +135,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # API Key settings
 API_KEY_HEADER = 'X-API-KEY'
-API_KEY = 'backend1-secret-key'  # In production, use environment variables
+API_KEY = 'questnest-backend1-api-7b9c4e8d2f1a5360'  # In production, use environment variables
 
 # CORS settings
 CORS_ALLOW_ALL_ORIGINS = True  # For development only
+CORS_ALLOW_CREDENTIALS = True
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
